@@ -1,0 +1,96 @@
+---
+import type { ViewParams } from 'astro';
+import { getPublishedRoutes } from 'astro:assets';
+
+type Props = {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  image?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  canonical?: string;
+};
+
+const {
+  title = "Atlas Directory — Programmatic Listing Platform Morocco",
+  description = "Plateforme de recherche d'annonces pour la location de voitures, l'immobilier et les services de santé au Maroc. Trouvez le meilleur choix par ville et catégorie.",
+  keywords = "Maroc, annonces, location voiture, immobilier, clinique, santé, directory, programmatic SEO",
+  image = "/og-default.jpg",
+  jsonLd = undefined,
+  canonical = Astro.url.href,
+} = Astro.props;
+
+const siteUrl = new URL(Astro.site || "https://example.com");
+
+const ogImage = image.startsWith("http")
+  ? image
+  : new URL(image, Astro.site || "/").href;
+---
+
+<!doctype html>
+<html lang={Astro.props.lang || "fr"}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    {keywords && <meta name="keywords" content={keywords} />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="canonical" href={canonical} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <style is:global>
+      :root {
+        --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+        --font-body: "Instrument Sans", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        background: var(--paper, #f2f5f3);
+        color: var(--ink, #131816);
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+      }
+    </style>
+
+    <!-- JSON-LD structured data -->
+    {jsonLd && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(Array.isArray(jsonLd) ? jsonLd : [jsonLd])}
+      />
+    )}
+  </head>
+  <body class="min-h-screen flex flex-col antialiased">
+    <slot />
+  </body>
+</html>

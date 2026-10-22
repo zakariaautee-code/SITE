@@ -1,0 +1,223 @@
+---
+import type { Listing } from '../types';
+
+type Props = {
+  listing: Listing;
+  showPrice?: boolean;
+};
+
+const { listing, showPrice = true } = Astro.props;
+const slug = listing.slug || listing.id;
+const citySlug = listing.city.toLowerCase().replace(/\s+/g, '-');
+const categorySlug = listing.category.toLowerCase();
+const detailUrl = `/${categorySlug}/${citySlug}/${slug}`;
+---
+
+<article class="listing-card group" itemscope itemtype="https://schema.org/ItemPage">
+  <meta itemprop="name" content={listing.title} />
+  <meta itemprop="description" content={listing.excerpt} />
+  {listing.price > 0 && (
+    <meta itemprop="offers" content={listing.price} />
+  )}
+  <meta itemprop="url" content={new URL(detailUrl, Astro.site || "").href} />
+  <meta itemprop="mainEntityOfPage" content={new URL(detailUrl, Astro.site || "").href} />
+
+  <!-- Listing status badge -->
+  {listing.rating ? (
+    <span class="badge badge-hot" aria-label="Évaluation {listing.rating} sur 5">
+      ★ {listing.rating} ({listing.reviewCount})
+    </span>
+  ) : null}
+
+  <!-- Header with title -->
+  <header class="listing-header flex items-center gap-4">
+    <div class="avatar w-12 h-12 rounded-lg bg-wa-teal-200 flex items-center justify-center text-lg flex-shrink-0">
+      {listing.category === 'car' ? '🚗' : listing.category === 'realestate' ? '🏢' : '🩺'}
+    </div>
+    <div class="flex-1 min-w-0">
+      <h3 class="font-display text-lg font-semibold text-in tracking-tight leading-snug line-clamp-2">
+        <a href={detailUrl} class="hover:text-hot no-underline text-in transition-colors">
+          {listing.title}
+        </a>
+      </h3>
+      <p class="text-xs text-mute mt-1 leading-relaxed line-clamp-2">
+        {listing.excerpt}
+      </p>
+    </div>
+  </header>
+
+  <!-- Price (shown by default) -->
+  {showPrice && (
+    <div class="price mt-4 flex items-baseline gap-2">
+      <span class="font-display" style="font-family:var(--font-display)">
+        {listing.price > 0 ? listing.price.toLocaleString('fr-MA') : ''}
+      </span>
+      <span class="text-sm text-mute font-medium">DH</span>
+      <span class="text-xs text-mute ml-1">/{listing.priceLabel && listing.price > 0 ? listing.priceLabel.split('/')[1] || 'jour' : 'jour'}</span>
+    </div>
+  )}
+
+  {listing.price === 0 && (
+    <div class="price mt-4 flex items-baseline gap-2">
+      <span class="font-medium text-sm text-warm">{listing.priceLabel || 'Sur demande'}</span>
+    </div>
+  )}
+
+  <!-- Features list -->
+  {listing.features && listing.features.length > 0 && (
+    <div class="features mt-4 flex flex-wrap gap-1.5">
+      {listing.features.slice(0, 4).map((feat) => (
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-paper text-mute border border-line">
+          {feat}
+        </span>
+      ))}
+    </div>
+  )}
+
+  <!-- Meta: city, provider, availability -->
+  <div class="meta mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-mute border-t border-line pt-4">
+    <span class="flex items-center gap-1">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v20M12 2l4 4H8l4-4z" />
+      </svg>
+      {listing.city}
+    </span>
+    <span class="flex items-center gap-1">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      {listing.provider?.name || 'Provider'}
+    </span>
+    <span class="flex items-center gap-1">
+      <span
+        class={`inline-block w-2 h-2 rounded-full ${listing.availability === 'InStock' ? 'bg-booked' : 'bg-cold'}`}
+      ></span>
+      {listing.availability === 'InStock' ? 'Disponible' : 'Indisponible'}
+    </span>
+  </div>
+
+  <!-- CTA button -->
+  <div class="actions mt-4">
+    <a
+      href={detailUrl}
+      class="btn btn-primary inline-flex items-center gap-2 text-sm font-medium"
+    >
+      Détails
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
+</article>
+
+<style>
+  .listing-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius, 18px);
+    padding: 1.25rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .listing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(19, 24, 22, 0.12);
+  }
+  .listing-header {
+    margin-bottom: 0.75rem;
+  }
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--wa-teal, #128C7E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+    color: white;
+  }
+  .price {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent, #E4A11B);
+  }
+  .features {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .features span {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  .actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--accent, #E4A11B);
+    color: #1e1e1e;
+    border: 1px solid var(--accent, #E4A11B);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background 0.15s;
+  }
+  .actions .btn-primary:hover {
+    background: #d4891a;
+  }
+  .badge {
+    position: absolute;
+    top: -8px;
+    left: 1rem;
+    z-index: 5;
+  }
+  .badge-hot {
+    background: #fbe7e1;
+    color: var(--hot, #D24B2E);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  @media (max-width: 640px) {
+    .listing-card {
+      padding: 1rem;
+    }
+    .price {
+      font-size: 1.25rem;
+    }
+  }
+</style>

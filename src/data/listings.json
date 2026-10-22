@@ -1,0 +1,282 @@
+[
+  {
+    "id": "eco-001",
+    "category": "car",
+    "categoryName": "Location de Voitures",
+    "city": "Casablanca",
+    "slug": "dacia-logan-economy",
+    "title": "Dacia Logan — Location Économique à Casablanca",
+    "excerpt": "Dacia Logan récente, 5 places, confortable pour les trajets en ville et autour de la côte.",
+    "price": 200,
+    "priceLabel": "200 DH/jour",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.5,
+    "reviewCount": 12,
+    "features": ["Climatisation", "Bluetooth", "Caméra de recul", "Volant télécommandé"],
+    "provider": {
+      "name": "Atlas Cars Casablanca",
+      "type": "LocalBusiness",
+      "telephone": "+212 522 00 00 00",
+      "address": "Rue Moulay Hassan, Casablanca 20250, Maroc",
+      "url": "https://example.com/car/casablanca/atlas-cars"
+    },
+    "seo": {
+      "description": "Louez une Dacia Logan à Casablanca à 200 DH/jour. Livraison gratuite à l'aéroport Mohammed V. Assurance incluse, caution remboursable.",
+      "keywords": "location voiture casablanca, dacia logan location, location auto maroc, voiture éco nomique casablanca, atlas cars"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "sedan-002",
+    "category": "car",
+    "categoryName": "Location de Voitures",
+    "city": "Casablanca",
+    "slug": "renault-symbol-sedan",
+    "title": "Renault Symbol — Berline Confort à Casablanca",
+    "excerpt": "Berline intermédiaire idéale pour les trajets d'affaires et les visites en région.",
+    "price": 350,
+    "priceLabel": "350 DH/jour",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.7,
+    "reviewCount": 24,
+    "features": ["Climatisation double zone", "Régulateur automatique", "Parcours"],
+    "provider": {
+      "name": "Atlas Cars Casablanca",
+      "type": "LocalBusiness",
+      "telephone": "+212 522 00 00 00",
+      "address": "Rue Moulay Hassan, Casablanca 20250, Maroc",
+      "url": "https://example.com/car/casablanca/atlas-cars"
+    },
+    "seo": {
+      "description": "Louez une Renault Symbol à Casablanca à 350 DH/jour. Berline confortable avec régulateur. Livraison à l'aéroport Mohammed V.",
+      "keywords": "location berline casablanca, renault symbol location, voiture confortable maroc, location sedan casablanca"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "suv-003",
+    "category": "car",
+    "categoryName": "Location de Voitures",
+    "city": "Casablanca",
+    "slug": "dacia-duster-suv",
+    "title": "Dacia Duster — SUV Polyvalent à Casablanca",
+    "excerpt": "SUV compact pour les familles et les sorties en périphérie ou dans les montagnes proches.",
+    "price": 550,
+    "priceLabel": "550 DH/jour",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.6,
+    "reviewCount": 18,
+    "features": ["Climatisation", "Sièges 7 places", "9.3 pouces central", "All-terrain léger"],
+    "provider": {
+      "name": "Atlas Cars Casablanca",
+      "type": "LocalBusiness",
+      "telephone": "+212 522 00 00 00",
+      "address": "Rue Moulay Hassan, Casablanca 20250, Maroc",
+      "url": "https://example.com/car/casablanca/atlas-cars"
+    },
+    "seo": {
+      "description": "Louez une Dacia Duster à Casablanca à 550 DH/jour. SUV 7 places pour familles et voyages. Livraison aéroport Mohammed V.",
+      "keywords": "location suv casablanca, dacia duster location, voyager maroc voiture, location familiale casablanca"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "villa-004",
+    "category": "realestate",
+    "categoryName": "Immobilier",
+    "city": "Marrakech",
+    "slug": "villa-malhao-rssaine",
+    "title": "Villa Élancée avec Piscine dans le Palmeraie",
+    "excerpt": "Villa moderne de 4 chambres avec piscine, jardin et vue dégagée sur les montagnes du Haut Atlas.",
+    "price": 850,
+    "priceLabel": "850 000 DH",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.8,
+    "reviewCount": 9,
+    "features": ["4 chambres", "Salle de bain principale avec jacuzzi", "Piscine", "Jardin paysager", "Garage 2 places"],
+    "provider": {
+      "name": "Atlas Immo Marrakech",
+      "type": "RealEstateAgent",
+      "telephone": "+212 524 00 00 00",
+      "address": "Avenue Mohammed V, Marrakech 40000, Maroc",
+      "url": "https://example.com/realestate/marrakech/atlas-immo"
+    },
+    "seo": {
+      "description": "Villa à vendre à Marrakech, Palmeraie — 4 chambres, piscine, jardin. 850 000 DH. Agence Atlas Immo. Visites sur rendez-vous.",
+      "keywords": "villa a vendre marrakech, villa palmeraie marrakech, maison moderne maroc, immobilier marrakech, vente villa maroc"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "studio-005",
+    "category": "realestate",
+    "categoryName": "Immobilier",
+    "city": "Casablanca",
+    "slug": "studio-vncouverte-gauthier",
+    "title": "Studio Neuf Vuisé au Cœur de Gauthier",
+    "excerpt": "Studio moderne entièrement rénové, lumineux, à deux pas du tramway et des commerces de quartier.",
+    "price": 320,
+    "priceLabel": "320 000 DH",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.4,
+    "reviewCount": 15,
+    "features": ["1 chambre", "Séparé", "Terrasse", "Garage", "Chauffage individuel"],
+    "provider": {
+      "name": "Atlas Immo Casablanca",
+      "type": "RealEstateAgent",
+      "telephone": "+212 522 00 00 00",
+      "address": "Rue Moulay Hassan, Casablanca 20250, Maroc",
+      "url": "https://example.com/realestate/casablanca/atlas-immo"
+    },
+    "seo": {
+      "description": "Studio à louer ou à vendre à Casablanca, quartier Gauthier — 320 000 DH. Proche tramway et commerces. Agence Atlas Immo.",
+      "keywords": "studio a louer casablanca, studio neuf casablanca, immobilier gauthier casablanca, location studio semestre maroc"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "apt-006",
+    "category": "realestate",
+    "categoryName": "Immobilier",
+    "city": "Rabat",
+    "slug": "appartement-3-rooms-agdal",
+    "title": "Appartement 3 Chambres dans la Cité Agdal",
+    "excerpt": "Appartement spacieux situé à proximité immédiate des parcs, hôpitaux et universités de Rabat.",
+    "price": 480,
+    "priceLabel": "480 000 DH",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.6,
+    "reviewCount": 11,
+    "features": ["3 chambres", "2 salles de bain", "Place de parking", "Salle de séjour lumineuse"],
+    "provider": {
+      "name": "Atlas Immo Rabat",
+      "type": "RealEstateAgent",
+      "telephone": "+212 537 00 00 00",
+      "address": "Avenue Sadok Ben Arfa, Rabat 10000, Maroc",
+      "url": "https://example.com/realestate/rabat/atlas-immo"
+    },
+    "seo": {
+      "description": "Appartement 3 chambres à Rabat, Agdal — 480 000 DH. Proche parcs, hôpitaux et universités. Agence Atlas Immo.",
+      "keywords": "appartement a vendre rabat, immobilier agdal rabat, location longue duree rabat, appartement 3 chambres maroc"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "dentist-007",
+    "category": "medical",
+    "categoryName": "Santé / Clinique",
+    "city": "Casablanca",
+    "slug": "clinique-odentaire-anfa",
+    "title": "Clinique Dentaire Anfa — Soins Complets",
+    "excerpt": "Clinique dentaire moderne proposant implantologie, orthodontie, blanchiment et soins généralistes.",
+    "price": 0,
+    "priceLabel": "Consultation gratuite",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.9,
+    "reviewCount": 31,
+    "features": ["Implantologie", "Orthodontie invisible", "Blanchiment professionnel", "Soins pédiatriques", "Anesthésie locale"],
+    "provider": {
+      "name": "Clinique Anfa",
+      "type": "Dentist",
+      "telephone": "+212 522 11 22 33",
+      "address": "Rue Allal Ben Ahmed, Casablanca 20200, Maroc",
+      "url": "https://example.com/medical/casablanca/clinique-anfa"
+    },
+    "seo": {
+      "description": "Clinique dentaire à Casablanca, quartier Anfa — implantologie, orthodontie, blanchiment. Consultation gratuite. Prenez rendez-vous.",
+      "keywords": "dentiste casablanca, clinique dentaire anfa, implant dentaire maroc, orthodontie invisible casablanca, blanchiment dentaire"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "clinic-008",
+    "category": "medical",
+    "categoryName": "Santé / Clinique",
+    "city": "Marrakech",
+    "slug": "centre-medical-quintessence",
+    "title": "Centre Médical Quintessence — Médecine Générale et Spécialités",
+    "excerpt": "Polyclinique multi-spécialités avec laboratoire, imagerie médicale et service de cardiologie.",
+    "price": 0,
+    "priceLabel": "Consultation à partir de 150 DH",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.5,
+    "reviewCount": 22,
+    "features": ["Médecine générale", "Cardiologie", "Pédiatrie", "Laboratoire", "Imagerie médicale"],
+    "provider": {
+      "name": "Centre Quintessence",
+      "type": "Hospital",
+      "telephone": "+212 524 55 66 77",
+      "address": "Avenue Mohammed VI, Marrakech 40000, Maroc",
+      "url": "https://example.com/medical/marrakech/centre-quintessence"
+    },
+    "seo": {
+      "description": "Polyclinique à Marrakech — médecine générale, cardiologie, pédiatrie, laboratoire et imagerie. Consultations à partir de 150 DH.",
+      "keywords": "clinique marrakech, médecin généraliste marrakech, cardiologue marrakech, pédiatre marrakech, centre medical maroc"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "spa-009",
+    "category": "medical",
+    "categoryName": "Santé / Clinique",
+    "city": "Agadir",
+    "slug": "institut-dermatologie-pacific",
+    "title": "Institut de Dermatologie et Esthétique Pacifique",
+    "excerpt": "Institut spécialisé en dermatologie médicale, esthétique et soins du visage haut de gamme.",
+    "price": 0,
+    "priceLabel": "Consultation 200 DH",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.8,
+    "reviewCount": 17,
+    "features": ["Dermatologie médicale", "Aesthétique faciale", "Traitement des rides", "Péilosits", "Laser médical"],
+    "provider": {
+      "name": "Institut Pacifique",
+      "type": "MedicalClinic",
+      "telephone": "+212 528 88 99 00",
+      "address": "Boulevard du Président Kennedy, Agadir 80000, Maroc",
+      "url": "https://example.com/medical/agadir/institut-pacifique"
+    },
+    "seo": {
+      "description": "Institut dermatologie et esthétique à Agadir — soins du visage, traitement rides, laser médical. Consultation 200 DH. Rendez-vous disponibles.",
+      "keywords": "dermatologue agadir, institut esthetique agadir, soins visage agadir, laser medical agadir, esthetique medicale maroc"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  },
+  {
+    "id": "van-010",
+    "category": "car",
+    "categoryName": "Location de Voitures",
+    "city": "Tangier",
+    "slug": "renault-kangoo-van",
+    "title": "Renault Kangoo — Fourgonnette pour Groupes",
+    "excerpt": "Fourgonnette spacieuse idéale pour le transport de groupes, équipements ou petits déménagements.",
+    "price": 800,
+    "priceLabel": "800 DH/jour",
+    "priceCurrency": "MAD",
+    "availability": "InStock",
+    "rating": 4.3,
+    "reviewCount": 8,
+    "features": ["8 places", "Charge utile 700 kg", "Climatisation", "Portes arrière élégante", "Boîte manuelle"],
+    "provider": {
+      "name": "Atlas Cars Tanger",
+      "type": "LocalBusiness",
+      "telephone": "+212 539 00 00 00",
+      "address": "Rue Ibn Batouta, Tanger 90000, Maroc",
+      "url": "https://example.com/car/tangier/atlas-cars"
+    },
+    "seo": {
+      "description": "Louez un Renault Kangoo à Tanger à 800 DH/jour. Fourgonnette 8 places, charge utile 700 kg. Livraison au port et gare Tanger-Ville.",
+      "keywords": "location fourgon tanger, renault kangoo location, transport groupe tanger, location van maroc, fourgonnette location"
+    },
+    "updatedAt": "2026-10-20T08:00:00Z"
+  }
+]

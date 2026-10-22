@@ -1,0 +1,43 @@
+---
+type Props = {
+  siteTitle?: string;
+  siteTagline?: string;
+};
+
+const { siteTitle = "Atlas Directory", siteTagline = "Programmatic Directory & Aggregator · Multi-niche Listings" } = Astro.props;
+---
+
+<header class="topbar sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-4 flex items-center justify-between flex-wrap gap-4">
+      <a href="/" class="flex items-center gap-3 no-underline">
+        <!-- Logo SVG -->
+        <svg
+          class="w-7 h-7 flex-none"
+          width="28"
+          height="28"
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <rect x="1" y="1" width="30" height="30" rx="8" fill="#131816" />
+          <path
+            d="M16 6l2.6 5.4L24 12l-4.2 4.2L20.8 22 16 19.2 11.2 22l1-5.8L8 12l5.4-.6z"
+            fill="#E4A11B"
+          />
+        </svg>
+        <div>
+          <h1 class="font-display text-base font-semibold tracking-tight leading-tight text-in-2 md:text-lg" style="font-family:var(--font-display)">
+            {siteTitle}
+          </h1>
+          <p class="text-xs text-mute mt-0.5">{siteTagline}</p>
+        </div>
+      </a>
+
+      <nav class="flex items-center gap-2 text-sm" aria-label="Primary navigation">
+        <a href="/car" class="px-3 py-2 rounded-full text-sm font-medium hover:bg-paper hover:text-hy transition-colors no-underline text-in-2">Voitures</a>
+        <a href="/realestate" class="px-3 py-2 rounded-full text-sm font-medium hover:bg-paper hover:text-hy transition-colors no-underline text-in-2">Immobilier</a>
+        <a href="/medical" class="px-3 py-2 rounded-full text-sm font-medium hover:bg-paper hover:text-hy transition-colors no-underline text-in-2">Santé</a>
+      </nav>
+    </div>
+  </div>
+</header>

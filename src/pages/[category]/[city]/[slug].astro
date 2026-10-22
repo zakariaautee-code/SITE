@@ -1,0 +1,286 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+import ListingCard from '../../../components/ListingCard.astro';
+
+import listings from '../../../data/listings.json';
+import type { Listing } from '../../../types';
+
+export function getStaticPaths() {
+  return listings.map(listing => ({
+    params: {
+      category: listing.category.toLowerCase(),
+      city: listing.city.toLowerCase().replace(/\s+/g, '-'),
+      slug: listing.slug,
+    },
+    props: { listing },
+  }));
+}
+
+// Ensure slug param is recognized
+const { category, city, slug } = Astro.params;
+
+const { listing } = Astro.props as { listing: Listing };
+  if (!listing || listing.slug !== slug) {
+    return Astro.redirect('/404', 302);
+  }
+const categorySlug = listing.category.toLowerCase();
+const citySlug = listing.city.toLowerCase().replace(/\s+/g, '-');
+const detailUrl = `/${categorySlug}/${citySlug}/${listing.slug}`;
+
+// Canonical
+const canonicalUrl = new URL(detailUrl, Astro.site || '').href;
+
+// Generate ItemPage / LocalBusiness / JobPosting / RealEstateAgent JSON-LD
+// based on category
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': listing.category === 'car'
+    ? 'ItemPage'
+    : listing.category === 'realestate'
+      ? 'RealEstateListing'
+      : 'MedicalBusiness',
+  name: listing.title,
+  description: listing.excerpt,
+  url: canonicalUrl,
+  ...(listing.rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: listing.rating, reviewCount: listing.reviewCount } } : {}),
+  ...(listing.price > 0 ? {
+    offers: {
+      '@type': 'Offer',
+      price: listing.price,
+      priceCurrency: listing.priceCurrency,
+      availability: listing.availability,
+      priceValidUntil: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+    },
+  } : {}),
+  ...(listing.provider ? {
+    provider: {
+      '@type': listing.provider.type as string,
+      name: listing.provider.name,
+      ...(listing.provider.telephone ? { telephone: listing.provider.telephone } : {}),
+      ...(listing.provider.address ? { address: { '@type': 'PostalAddress', addressLocality: listing.city, addressCountry: 'MA' } } : {}),
+      ...(listing.provider.url ? { url: listing.provider.url } : {}),
+    },
+  } : {}),
+  ...(listing.features ? { hasFeature: listing.features } : {}),
+};
+
+const relatedCityListings = listings
+  .filter(l => l.category === listing.category && l.city === listing.city && l.slug !== listing.slug)
+  .slice(0, 3);
+---
+
+<Layout
+  title={listing.title}
+  description={listing.seo?.description || listing.excerpt}
+  keywords={listing.seo?.keywords || ''}
+  image={listing.category === 'car' ? '/og-car.jpg' : listing.category === 'realestate' ? '/og-realtor.jpg' : '/og-medical.jpg'}
+  canonical={canonicalUrl}
+  jsonLd={jsonLd}
+>
+  <Header />
+
+  <main class="flex-1">
+    <!-- Breadcrumb -->
+    <div class="bg-card border-b border-line">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <nav aria-label="Breadcrumb" class="text-xs text-mute flex flex-wrap gap-x-2">
+          <a href="/" class="hover:text-hot no-underline">Accueil</a>
+          <span aria-hidden="true">/</span>
+          <a href={`/${categorySlug}`} class="hover:text-hot no-underline">{listing.categoryName}</a>
+          <span aria-hidden="true">/</span>
+          <a href={`/${categorySlug}/${citySlug}`} class="hover:text-hot no-underline">{listing.city}</a>
+          <span aria-hidden="true">/</span>
+          <span class="text-mute">{listing.title}</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Detail header + in-content ad top -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- ATF ad right under the detail header -->
+      <AdUnit adSize="atf" />
+
+      <article class="bg-card border border-line rounded-2xl overflow-hidden" itemscope itemtype="https://schema.org/ItemPage">
+        <meta itemprop="name" content={listing.title} />
+        <meta itemprop="description" content={listing.excerpt} />
+        <meta itemprop="url" content={canonicalUrl} />
+
+        <!-- Header row -->
+        <header class="p-6 sm:p-8 border-b border-line">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div>
+              {listing.rating && (
+                <span class="text-sm text-mute">
+                  ★ {listing.rating} · {listing.reviewCount} avis
+                </span>
+              )}
+              <h1 class="mt-2 font-display text-2xl sm:text-3xl font-bold text-in tracking-tight" style="font-family:var(--font-display)" itemprop="headline">
+                {listing.title}
+              </h1>
+              <p class="mt-2 text-sm text-mute leading-relaxed" itemprop="description">
+                {listing.excerpt}
+              </p>
+            </div>
+            <!-- Price block -->
+            <div class="flex-shrink-0 text-right">
+              {listing.price > 0 ? (
+                <div class="price text-3xl sm:text-4xl font-display font-bold text-accent" style="font-family:var(--font-display); color:var(--accent)">
+                  {listing.price.toLocaleString('fr-MA')}
+                  <span class="text-lg text-mute font-medium">DH</span>
+                </div>
+              ) : (
+                <div class="price text-lg font-medium text-warm">{listing.priceLabel}</div>
+              )}
+              <p class="mt-1 text-xs text-mute">{listing.priceLabel && listing.price > 0 ? listing.priceLabel : `Devise: ${listing.priceCurrency}`}</p>
+            </div>
+          </div>
+        </header>
+
+        <!-- Body: in-content ad inside detail section -->
+        <div class="p-6 sm:p-8">
+          <!-- In-content ad 1 -->
+          <AdUnit adSize="inline" />
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+            <!-- Main content -->
+            <div class="md:col-span-2 space-y-6">
+              <!-- Features -->
+              {listing.features && listing.features.length > 0 && (
+                <section>
+                  <h2 class="font-display text-lg font-semibold text-in mb-3" style="font-family:var(--font-display)">Caractéristiques</h2>
+                  <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {listing.features.map(feature => (
+                      <li class="flex items-center gap-2 text-sm text-in-2">
+                        <svg class="w-4 h-4 text-hot flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              <!-- Description (seo excerpt expanded) -->
+              <section>
+                <h2 class="font-display text-lg font-semibold text-in mb-3" style="font-family:var(--font-display)">Détails</h2>
+                <p class="text-sm text-mute leading-relaxed">
+                  {listing.excerpt}
+                </p>
+              </section>
+
+              <!-- Second in-content ad deeper in content -->
+              <AdUnit adSize="inline" />
+
+              <!-- Provider card -->
+              {listing.provider && (
+                <section class="bg-paper rounded-xl p-4 border border-line">
+                  <h3 class="text-sm font-semibold text-in mb-2" style="font-family:var(--font-display)">Prestataire</h3>
+                  <p class="text-sm text-mute flex items-start gap-2">
+                    <svg class="w-4 h-4 text-wa-teal mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>
+                      <strong class="text-in text-sm">{listing.provider.name}</strong>
+                      <br />
+                      {listing.provider.address && <span class="text-mute">{listing.provider.address}</span>}
+                      {listing.provider.telephone && (
+                        <a href={`tel:${listing.provider.telephone}`} class="text-wa-teal text-sm hover:underline">
+                          {listing.provider.telephone}
+                        </a>
+                      )}
+                    </span>
+                  </p>
+                </section>
+              )}
+
+              <!-- CTA buttons -->
+              <div class="flex flex-wrap gap-3 pt-2">
+                <a
+                  href={`tel:${listing.provider?.telephone?.replace(/[^0-9+]/g, '') || ''}`}
+                  class="btn btn-dark inline-flex items-center gap-2"
+                >
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  Appeler
+                </a>
+                <a
+                  href={listing.provider?.url || '#'}
+                  class="btn inline-flex items-center gap-2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Visiter le site
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Sidebar meta -->
+            <aside class="space-y-5">
+              <div class="bg-paper rounded-xl p-4 border border-line">
+                <h3 class="text-xs font-semibold uppercase tracking-wide text-mute mb-3">Informations</h3>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <dt class="text-mute">Ville</dt>
+                    <dd class="text-in font-medium">{listing.city}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-mute">Catégorie</dt>
+                    <dd class="text-in">{listing.categoryName}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-mute">Disponibilité</dt>
+                    <dd>
+                      <span class={`inline-flex items-center gap-1.5 text-sm ${listing.availability === 'InStock' ? 'text-booked' : 'text-cold'}`}>
+                        <span class={`inline-block w-2 h-2 rounded-full ${listing.availability === 'InStock' ? 'bg-booked' : 'bg-cold'}`}></span>
+                        {listing.availability === 'InStock' ? 'Disponible' : 'En cours'}
+                      </span>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <!-- Sidebar ad -->
+              <div class="hidden lg:block">
+                <AdUnit adSize="inline" />
+              </div>
+            </aside>
+          </div>
+        </div>
+      </article>
+
+      <!-- Related listings -->
+      <section class="mt-10">
+        <h2 class="font-display text-lg font-semibold text-in mb-4" style="font-family:var(--font-display)">Annonces similaires dans {listing.city}</h2>
+        {relatedCityListings.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {relatedCityListings.map(rel => (
+              <ListingCard listing={rel} showPrice />
+            ))}
+          </div>
+        ) : (
+          <p class="text-sm text-mute">Aucune annonce similaire disponible pour le moment.</p>
+        )}
+      </section>
+    </div>
+  </main>
+
+  <!-- Mobile sticky ad -->
+  <div class="mt-auto bg-card border-t border-line sticky bottom-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
+      <div class="w-full max-w-[320px]">
+        <AdUnit adSize="mobile-sticky" />
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>

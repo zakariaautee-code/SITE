@@ -1,0 +1,194 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+import ListingCard from '../../../components/ListingCard.astro';
+
+import listings from '../../../data/listings.json';
+
+export function getStaticPaths() {
+  const categories = [...new Set(listings.map(l => l.category))];
+  const citiesByCategory = new Map<string, string[]>();
+
+  for (const cat of categories) {
+    const cities = [...new Set(listings.filter(l => l.category === cat).map(l => l.city))];
+    citiesByCategory.set(cat, cities.sort());
+  }
+
+  return categories.flatMap(category =>
+    citiesByCategory.get(category)?.map(city => ({
+      params: {
+        category: category.toLowerCase(),
+        city: city.toLowerCase().replace(/\s+/g, '-'),
+      },
+      props: {
+        category,
+        city,
+        listings: listings.filter(l => l.category === category && l.city === city),
+      },
+    })) ?? []
+  );
+}
+
+const { category, city, listings: catCityListings } = Astro.props;
+const categoryName = catCityListings[0]?.categoryName || category;
+const cityDisplayName = city.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+// JSON-LD: ItemList for the directory page
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: catCityListings.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(`/${category}/${city}/${item.slug}`, Astro.site || '').href,
+    name: item.title,
+    description: item.excerpt,
+    ...(item.price > 0 ? { offers: { '@type': 'Offer', price: item.price, priceCurrency: item.priceCurrency } } : {}),
+  })),
+};
+---
+
+<Layout
+  title={`${categoryName} — ${cityDisplayName}`}
+  description={`Annonces ${categoryName.toLowerCase()} à ${cityDisplayName}. Trouvez voitures, immeubles, cliniques et services de santé par ville.`}
+  keywords={`${categoryName.toLowerCase()} ${cityDisplayName}, annonces Maroc, directory, programmatic SEO`}
+  jsonLd={jsonLd}
+>
+  <Header />
+
+  <main class="flex-1">
+    <!-- Page header with breadcrumb -->
+    <div class="bg-card border-b border-line">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <nav aria-label="Breadcrumb" class="text-xs text-mute mb-3 flex flex-wrap gap-x-2">
+          <a href="/" class="hover:text-hot no-underline">Accueil</a>
+          <span aria-hidden="true">/</span>
+          <a href={`/${category}`} class="hover:text-hot no-underline">{categoryName}</a>
+          <span aria-hidden="true">/</span>
+          <span class="text-mute">{cityDisplayName}</span>
+        </nav>
+
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-in" style="font-family:var(--font-display)">
+          {categoryName} à <span class="text-accent" style="color:var(--accent)">{cityDisplayName}</span>
+        </h1>
+        <p class="mt-2 text-sm text-mute">
+          {listings.length} annonce{listings.length !== 1 ? 's' : ''} disponible{listings.length !== 1 ? 's' : ''} dans cette catégorie et cette ville.
+        </p>
+      </div>
+    </div>
+
+    <!-- ATF Ad -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <AdUnit adSize="atf" />
+    </div>
+
+    <!-- Filter sidebar + listings -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
+        <!-- Filters -->
+        <aside class="lg:block bg-card border border-line rounded-2xl p-5" aria-label="Filtres">
+          <h3 class="text-sm font-semibold text-in mb-4" style="font-family:var(--font-display)">Filtrer</h3>
+
+          <div class="space-y-5">
+            <!-- Price range filter -->
+            <div>
+              <label class="text-xs font-medium text-mute uppercase tracking-wide">Prix max (DH/jour)</label>
+              <select class="mt-1 w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-in" aria-label="Prix maximum">
+                <option value="">Tout</option>
+                <option value="500">Moins de 500 DH</option>
+                <option value="800">Moins de 800 DH</option>
+                <option value="99999">Plus de 800 DH</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-mute uppercase tracking-wide">Disponibilité</label>
+              <div class="mt-2 space-y-2">
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="checkbox" class="rounded border-line text-hot focus:ring-hot" />
+                  Disponible maintenant
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-mute uppercase tracking-wide">Évaluation</label>
+              <div class="mt-2 space-y-2">
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="rating" class="border-line text-hot focus:ring-hot" />
+                  4 étoiles et plus
+                </label>
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="rating" class="border-line text-hot focus:ring-hot" />
+                  3 étoiles et plus
+                </label>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Listings grid -->
+        <section aria-label="Résultats de recherche">
+          {listings.length === 0 ? (
+            <div class="text-center py-16 bg-paper rounded-2xl border border-line">
+              <p class="text-mute text-sm">Aucune annonce pour cette combinaison de filtres.</p>
+            </div>
+          ) : (
+            <>
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-sm text-mute">{listings.length} résultat{listings.length !== 1 ? 's' : ''}</p>
+                <!-- In-content ad inside detail/summary area -->
+                <div class="hidden sm:block w-64 self-start">
+                  <AdUnit adSize="inline" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {listings.map(listing => (
+                  <ListingCard listing={listing} showPrice />
+                ))}
+              </div>
+
+              <!-- In-content ad below listings on mobile -->
+              <div class="sm:hidden mt-6">
+                <AdUnit adSize="inline" />
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+    </div>
+
+    <!-- In-content ad again for longer pages -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+      <AdUnit adSize="inline" />
+    </div>
+  </main>
+
+  <!-- Mobile sticky ad -->
+  <div class="mt-auto bg-card border-t border-line sticky bottom-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
+      <div class="w-full max-w-[320px]">
+        <AdUnit adSize="mobile-sticky" />
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script>
+  // Lightweight client-side filter hooks (Alpine.js or Vanilla)
+  // For production, replace with Alpine.js for cleaner reactivity
+  document.addEventListener('DOMContentLoaded', () => {
+    const selects = document.querySelectorAll('select');
+    selects.forEach(sel => {
+      sel.addEventListener('change', () => {
+        // For now, static — swap in client-side filtering lib or Alpine.js
+        console.log('Filter change:', sel.value);
+      });
+    });
+  });
+</script>
