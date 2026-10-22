@@ -13,3 +13,7 @@ dist/
 
 # Local Site/Worker scaffolding used for this project only (not part of the Astro app)
 site/
+
+# GitHub Actions folder is owned by this project's deploy guide workflow,
+# not a long-lived tracked artifact here.
+.github/
