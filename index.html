@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Directory - Programmatic Directory & Aggregator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#131816;
+  --ink-2:#2C3531;
+  --muted:#6B7770;
+  --line:#E2E7E3;
+  --paper:#F2F5F3;
+  --card:#FFFFFF;
+  --accent:#E4A11B;
+  --hot:#D24B2E;
+  --booked:#1E7A5B;
+  --warm:#B98412;
+  --cold:#8A9490;
+  --wa-header:#075E54;
+  --wa-teal:#128C7E;
+  --wa-out:#DCF8C6;
+  --wa-bg:#ECE5DD;
+  --radius:18px;
+  --font-display:"Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --font-body:"Instrument Sans", system-ui, -apple-system, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.5;
+  min-height:100vh;
+}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:16px 28px;
+  border-bottom:1px solid var(--line);
+  background:var(--card);
+  position:sticky;top:0;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand svg{flex:none}
+.brand h1{
+  font-family:var(--font-display);
+  font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.2;
+}
+.brand p{font-size:13px;color:var(--muted);line-height:1.3}
+.topbar-actions{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  padding:9px 16px;border-radius:999px;font-size:14px;font-weight:500;
+  transition:background .15s ease,border-color .15s ease,transform .1s ease;
+}
+.btn:hover{background:var(--paper);border-color:#d3dad5}
+.btn:active{transform:translateY(1px)}
+.btn-dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-dark:hover{background:#253029;border-color:#253029}
+.btn-dark[disabled]{opacity:.55;cursor:default;transform:none}
+.niche{display:flex;align-items:center;gap:8px}
+.niche label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.niche select{
+  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink);
+  padding:9px 12px;border-radius:999px;border:1px solid var(--line);
+  background:var(--card);cursor:pointer;
+  transition:background .15s ease,border-color .15s ease;
+}
+.niche select:hover{background:var(--paper);border-color:#d3dad5}
+
+/* ---------- layout ---------- */
+.layout{
+  display:grid;
+  grid-template-columns:minmax(340px,410px) minmax(0,1fr);
+  gap:26px;
+  max-width:1280px;margin:0 auto;
+  padding:26px 28px 40px;
+  align-items:start;
+}
+@media (max-width:960px){
+  .layout{grid-template-columns:1fr;padding:20px 16px 32px}
+  .topbar{padding:14px 16px}
+}
+
+/* ---------- phone ---------- */
+.stage{display:flex;justify-content:center}
+.phone{
+  width:100%;max-width:390px;
+  background:var(--ink);
+  border-radius:44px;
+  padding:11px;
+  box-shadow:0 26px 60px rgba(19,24,22,.28), 0 2px 6px rgba(19,24,22,.18);
+  position:relative;
+}
+.phone-screen{
+  background:var(--wa-bg);
+  border-radius:34px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  height:660px;
+  position:relative;
+}
+.notch{
+  position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:118px;height:26px;background:var(--ink);border-radius:0 0 16px 16px;z-index:5;
+}
+.wa-header{
+  background:var(--wa-header);color:#fff;
+  display:flex;align-items:center;gap:11px;
+  padding:34px 14px 10px;
+  flex:none;
+}
+.wa-avatar{
+  width:40px;height:40px;border-radius:50%;flex:none;
+  background:var(--wa-teal);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.wa-title{min-width:0}
+.wa-title strong{display:block;font-size:15px;font-weight:600;line-height:1.25}
+.wa-title span{display:block;font-size:12px;opacity:.85;line-height:1.3}
+.wa-badge{
+  margin-left:auto;flex:none;
+  background:rgba(255,255,255,.16);
+  border-radius:999px;padding:4px 10px;
+  font-size:11px;font-weight:600;letter-spacing:.02em;
+  display:flex;align-items:center;gap:5px;
+}
+.wa-badge i{width:7px;height:7px;border-radius:50%;background:#7CE2A2;display:inline-block;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.wa-chat{
+  flex:1;overflow-y:auto;
+  padding:14px 12px 8px;
+  display:flex;flex-direction:column;gap:6px;
+  background-color:var(--wa-bg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23d5ccc2' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M12 8l2.2 3.8L18 14l-3.8 2.2L12 20l-2.2-3.8L6 14l3.8-2.2z'/%3E%3Cpath d='M44 30v8M40 34h8'/%3E%3Ccircle cx='47' cy='12' r='3.5'/%3E%3Cpath d='M16 44c2-3 5-3 7 0'/%3E%3Cpath d='M34 50l3 3 5-6'/%3E%3C/g%3E%3C/svg%3E");
+  scrollbar-width:thin;
+}
+.msg{
+  max-width:82%;
+  padding:7px 10px 5px;
+  border-radius:8px;
+  font-size:14px;line-height:1.45;
+  position:relative;
+  word-wrap:break-word;
+  animation:msgin .22s ease both;
+  box-shadow:0 1px 1px rgba(19,24,22,.10);
+}
+@keyframes msgin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.bot{align-self:flex-start;background:#fff;border-top-left-radius:2px}
+.msg.user{align-self:flex-end;background:var(--wa-out);border-top-right-radius:2px}
+.msg .time{
+  display:block;text-align:right;
+  font-size:10px;color:#8a9490;margin-top:2px;
+  display:flex;align-items:center;justify-content:flex-end;gap:3px;
+}
+.msg.user .time{color:#5f8a5f}
+.msg .tick{font-size:11px;color:#34B7F1;letter-spacing:-2px}
+.day-sep{
+  align-self:center;background:#fff;color:var(--muted);
+  font-size:11px;padding:4px 12px;border-radius:8px;
+  box-shadow:0 1px 1px rgba(19,24,22,.08);
+  margin:4px 0;
+}
+.typing{
+  align-self:flex-start;background:#fff;
+  border-radius:8px;border-top-left-radius:2px;
+  padding:10px 14px;display:flex;gap:4px;
+  box-shadow:0 1px 1px rgba(19,24,22,.10);
+}
+.typing i{width:7px;height:7px;border-radius:50%;background:#b6bdb8;animation:dot 1.2s ease-in-out infinite}
+.typing i:nth-child(2){animation-delay:.18s}
+.typing i:nth-child(3){animation-delay:.36s}
+@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+
+.replies{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:2px 12px 10px;
+}
+.replies button{
+  background:#fff;border:1px solid var(--wa-teal);
+  color:var(--wa-teal);
+  border-radius:999px;padding:7px 13px;
+  font-size:13px;font-weight:500;
+  transition:background .15s ease;
+}
+.replies button:hover{background:#e6f5f2}
+.wa-input{
+  flex:none;display:flex;align-items:center;gap:8px;
+  padding:8px 10px 12px;
+  background:var(--wa-bg);
+}
+.wa-input .field{
+  flex:1;display:flex;align-items:center;
+  background:#fff;border-radius:999px;
+  padding:9px 14px;
+  box-shadow:0 1px 1px rgba(19,24,22,.08);
+}
+.wa-input input{
+  border:0;outline:0;flex:1;font-family:inherit;font-size:14px;
+  background:transparent;color:var(--ink);min-width:0;
+}
+.wa-input input::placeholder{color:#9aa39e}
+.wa-send{
+  width:44px;height:44px;flex:none;border:0;border-radius:50%;
+  background:var(--wa-teal);color:#fff;font-size:17px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s ease;
+}
+.wa-send:hover{background:var(--wa-header)}
+
+/* ---------- ops dashboard ---------- */
+.ops{display:flex;flex-direction:column;gap:18px;min-width:0}
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+.ops-head{
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding:18px 22px 0;
+}
+.ops-head h2{
+  font-family:var(--font-display);
+  font-size:21px;font-weight:600;letter-spacing:-.01em;
+}
+.live{
+  font-size:12.5px;color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--booked);animation:pulse 2.4s ease-in-out infinite}
+.stats{
+  display:flex;
+  padding:14px 22px 18px;
+}
+.stat{padding:0 26px;border-left:1px solid var(--line)}
+.stat:first-child{padding-left:0;border-left:0}
+.stat b{
+  font-family:var(--font-display);
+  font-size:28px;font-weight:600;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;display:block;line-height:1.1;
+}
+.stat span{font-size:12.5px;color:var(--muted)}
+.stat.hot b{color:var(--hot)}
+
+.leads{padding:0 0 6px}
+.lead-row{
+  width:100%;text-align:left;background:none;border:0;
+  border-top:1px solid var(--line);
+  padding:14px 22px;
+  display:flex;align-items:center;gap:14px;
+  transition:background .12s ease;
+}
+.lead-row:hover{background:#fafcfb}
+.lead-row.sel{background:#f4f8f6}
+.lead-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.lead-dot.hot{background:var(--hot)}
+.lead-dot.warm{background:var(--accent)}
+.lead-dot.booked{background:var(--booked)}
+.lead-dot.cold{background:var(--cold)}
+.lead-main{min-width:0;flex:1}
+.lead-main b{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.lead-main small{color:var(--muted);font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flag{font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px}
+.flag.hot{background:#fbe7e1;color:var(--hot)}
+.flag.warm{background:#fbf1da;color:var(--warm)}
+.flag.booked{background:#e2f2eb;color:var(--booked)}
+.flag.cold{background:#edf0ee;color:var(--cold)}
+.lead-time{font-size:12px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums}
+.empty{padding:26px 22px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+.empty b{color:var(--ink);font-weight:600}
+
+.detail{padding:20px 22px}
+.detail-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.detail-head h3{font-family:var(--font-display);font-size:19px;font-weight:600}
+.detail .close-x{margin-left:auto;background:none;border:0;color:var(--muted);font-size:20px;line-height:1;padding:4px 8px;border-radius:6px}
+.detail .close-x:hover{background:var(--paper);color:var(--ink)}
+.fields{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:14px 20px;margin:14px 0 18px;
+}
+.fields dt{font-size:12px;color:var(--muted);margin-bottom:2px}
+.fields dd{font-size:14.5px;font-weight:500}
+.notif{
+  background:var(--ink);color:#EDF1EE;
+  border-radius:12px;padding:14px 16px;
+  font-size:13.5px;line-height:1.55;
+  white-space:pre-wrap;
+  position:relative;
+}
+.notif .copy{
+  position:absolute;top:10px;right:10px;
+  background:rgba(255,255,255,.12);border:0;color:#fff;
+  font-size:12px;padding:5px 11px;border-radius:999px;
+}
+.notif .copy:hover{background:rgba(255,255,255,.22)}
+.notif-label{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.transcript{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.transcript summary{font-size:13.5px;color:var(--muted);cursor:pointer;user-select:none}
+.transcript summary:hover{color:var(--ink)}
+.tline{margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto}
+.tline p{font-size:13.5px;line-height:1.45;padding:7px 11px;border-radius:8px;max-width:88%}
+.tline p.u{align-self:flex-end;background:#f0f4f1}
+.tline p.b{background:var(--paper)}
+.tline p em{font-style:normal;font-weight:600;font-size:11.5px;color:var(--muted);display:block}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;right:22px;bottom:22px;z-index:50;
+  background:var(--ink);color:#fff;
+  border-radius:14px;padding:14px 18px 14px 16px;
+  display:flex;gap:12px;align-items:flex-start;
+  max-width:340px;
+  box-shadow:0 16px 40px rgba(19,24,22,.35);
+  border-left:4px solid var(--hot);
+  animation:toastin .3s ease both;
+}
+@keyframes toastin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.toast.hide{animation:toastout .3s ease both}
+.toastout{to{opacity:0;transform:translateY(14px)}}
+.toast b{display:block;font-size:14px;margin-bottom:2px}
+.toast span{font-size:13px;color:#C9D2CC;line-height:1.4}
+.toast button{
+  background:none;border:0;color:var(--accent);
+  font-size:13px;font-weight:600;padding:0;margin-top:6px;
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+.foot{
+  max-width:1280px;margin:0 auto;padding:0 28px 30px;
+  font-size:12.5px;color:var(--muted);
+  display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+}
+.foot button{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:12.5px;padding:0}
+.foot button:hover{color:var(--hot)}
+
+/* ---------- pSEO pages ---------- */
+.page{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
+.page-header{
+  padding:20px 28px;
+  border-bottom:1px solid var(--line);
+  background:var(--card);
+}
+.page-title{
+  font-family:var(--font-display);
+  font-size:24px;font-weight:600;letter-spacing:-.02em;
+  margin:0;
+}
+.page-breadcrumb{
+  font-size:13px;color:var(--muted);margin-top:8px;
+}
+.page-breadcrumb a{
+  color:var(--muted);
+  text-decoration:none;
+}
+.page-breadcrumb a:hover{color:var(--accent)}
+
+/* ---------- directory listing card ---------- */
+.listing-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:16px;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.listing-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(19,24,22,.15)}
+.listing-card.hot{border-color:var(--hot);box-shadow:0 0 20px rgba(210,75,46,.2)}
+.listing-card.warm{border-color:var(--accent);box-shadow:0 0 20px rgba(177,132,18,.2)}
+.listing-card.cold{border-color:var(--cold);box-shadow:0 0 10px rgba(138,148,144,.15)}
+.listing-card.booked{background:var(--wa-out);border-color:var(--wa-out)}
+.listing-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:12px;
+}
+.listing-avatar{
+  width:48px;height:48px;border-radius:8px;
+  background:var(--wa-teal);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.listing-info h3{
+  font-family:var(--font-display);
+  font-size:16px;font-weight:600; margin:0 0 4px;
+  color:var(--ink);
+  line-height:1.2;
+}
+.listing-info p{
+  font-size:12px;color:var(--muted); margin:0;
+  display:flex;align-items:center;gap:4px;
+}
+.listing-info span{
+  font-size:11px;color:var(--warm);background:var(--warm);color:#1e1e1e;
+  padding:2px 6px;border-radius:3px;font-weight:600;
+}
+.listing-price{
+  font-family:var(--font-display);
+  font-size:18px;font-weight:700;
+  color:var(--accent);
+  margin-bottom:8px;
+}
+.listing-meta{
+  display:flex;flex-wrap:wrap;gap:12px;padding-top:12px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--muted);
+}
+.listing-meta div{
+  display:flex;align-items:center;gap:4px;
+}
+.listing-actions{
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--line);
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.listing-action-btn{
+  flex:1;min-width:120px;
+  background:var(--card);border:1px solid var(--line);
+  color:var(--ink);padding:8px;border-radius:6px;font-size:13px;
+  transition:background .15s ease;
+}
+.listing-action-btn:hover{background:var(--paper)}
+.listing-action-btn.primary{background:var(--accent);color:#1e1e1e;border-color:var(--accent)}
+.listing-action-btn.secondary{color:var(--wa-teal);border-color:var(--wa-teal)}
+
+/* ---------- filter sidebar ---------- */
+.filter-sidebar{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:20px;
+  height:fit-content;
+}
+.filter-section{
+  margin-bottom:20px;
+}
+.filter-section h4{
+  font-size:13px;color:var(--muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);
+}
+.filter-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--paper);border:1px solid var(--line);
+  color:var(--ink);padding:6px 12px;border-radius:999px;font-size:12px;
+  margin:2px;cursor:pointer;transition:all .15s ease;
+}
+.filter-chip:hover{background:var(--accent);color:#1e1e1e;border-color:var(--accent)}
+.filter-chip.selected{background:var(--accent);color:#1e1e1e}
+.filter-chip.tag{color:var(--wa-teal);background:rgba(18,140,126,.1);border-color:var(--wa-teal)}
+
+/* ---------- ad slots ---------- */
+.ad-slot{margin:16px 0;padding:12px;border-radius:var(--radius);background:var(--paper)}
+.ad-slot.atf{border-top:4px solid var(--hot);margin-top:-12px;padding-top:12px;margin-bottom:12px}
+.ad-slot.in-content{background:var(--wa-out);color:var(--ink)}
+.ad-slot.sticky{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10}
+
+/* ---------- SEO specific ---------- */
+.seo-meta{
+  display:none;
+}
+.seo-json-ld{
+  display:none;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="8" fill="#131816"/>
+      <path d="M16 6l2.6 5.4L24 12l-4.2 4.2L20.8 22 16 19.2 11.2 22l1-5.8L8 12l5.4-.6z" fill="#E4A11B"/>
+    </svg>
+    <div>
+      <h1 id="brandTitle">Atlas Directory</h1>
+      <p id="brandTagline">Programmatic Directory & Aggregator · Multi-niche Listings</p>
+    </div>
+  </div>
+  <div class="niche">
+    <label for="nicheSelect">Secteur :</label>
+    <select id="nicheSelect" aria-label="Secteur d'activité">
+      <option value="car">🚘 Location de Voitures (Atlas Cars)</option>
+      <option value="realestate">🏢 Immobilier (Atlas Immo)</option>
+      <option value="medical">🩺 Santé / Clinique (Clinique Anfa)</option>
+    </select>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn" id="btn-reset">Réinitialiser</button>
+    <button class="btn btn-dark" id="btn-auto">Démo automatique</button>
+  </div>
+</header>
+
+<!-- Above-the-Fold Leaderboard Ad Slot -->
+<div class="ad-slot atf" id="adATF" aria-hidden="true">
+  <div class="ad-placeholder" style="aspect-ratio: 320/50; background:var(--paper); display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">Ad ATF 320×50</div>
+</div>
+
+<!-- In-Content Interstitial Ad Slot -->
+<div style="margin:24px 0; min-height:60px">
+  <div class="ad-slot in-content" id="adInContent" aria-hidden="true">
+    <div class="ad-placeholder" style="aspect-ratio: 400/250; background:var(--wa-out); color:var(--ink); display:flex;align-items:center;justify-content:center;font-size:12px;padding:8px">Ad In-Content 400×250</div>
+  </div>
+</div>
+
+<main class="layout">
+  <!-- Filter Sidebar -->
+  <aside class="filter-sidebar" aria-label="Filtres">
+    <div class="filter-section">
+      <h4>Catégorie</h4>
+      <div id="filterCategory" role="group"></div>
+    </div>
+    <div class="filter-section">
+      <h4>Ville</h4>
+      <div id="filterCity" role="group"></div>
+    </div>
+    <div class="filter-section">
+      <h4>Prix</h4>
+      <div id="filterPrice" role="group"></div>
+    </div>
+  </aside>
+
+  <!-- Listings Area -->
+  <section id="listingsArea" class="stage" aria-label="Annonces"></section>
+</main>
+
+<div class="ad-slot sticky" id="adSticky" aria-hidden="true" style="position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10"><div class="ad-placeholder" style="aspect-ratio: 320/50; background:var(--paper); display:flex;align-items:center;justify-content:center;font-size:12px;padding:8px">Ad Sticky 320×50</div></div>
+
+<div class="foot">
+  <span>Atlas Directory · Les annonces sont enregistrées localement dans votre navigateur.</span>
+  <button id="btn-clear">Vider les annonces</button>
+</div>
+
+<div id="toast-wrap" aria-live="assertive"></div>
+
+<!-- SEO Meta Tags (hidden by default, injected dynamically) -->
+<div class="seo-meta" id="seoMeta"></div>
+<div class="seo-json-ld" id="seoJsonLd"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===================== copy / i18n ===================== */
+  const COPY = {
+    fr: {
+      welcome: "Bonjour 👋 Bienvenue chez Atlas Cars Casablanca. Location de voitures avec livraison gratuite à l'aéroport Mohammed V et dans votre hôtel.",
+      askLang: "Choisissez votre langue / اختر اللغة :",
+      askNeed: "Comment puis-je vous aider ?",
+      needChips: ["Location à l'aéroport", "Location en ville", "Transfert aéroport", "Location longue durée"],
+      askName: "Parfait. Pour commencer, votre nom complet ?",
+      askPhone: "Merci {name} 👌 Votre numéro de téléphone (format marocain, ex. 0661 23 45 67) ?",
+      askDates: "Quelles dates de location ? (ex. du 12 au 14 juin)",
+      askClass: "Quel type de véhicule vous conviendra ?",
+      classChips: ["Économique — 200 DH/j", "Berline — 350 DH/j", "SUV — 550 DH/j", "Van — 800 DH/j"],
+      askBudget: "Un budget approximatif par jour ? (facultatif)",
+      budgetChips: ["Passer", "200–300 DH", "300–500 DH", "plus de 500 DH"],
+      offer: "Excellent choix {name} ✅\n\nOffre Atlas Cars :\n• {car} — {price} DH/jour\n• Caution remboursable, assurance incluse\n• Livraison gratuite à l'aéroport ou à votre hôtel\n\nVous confirmez la réservation, ou vous préférez parler à un conseiller ?",
+      closeChips: ["✅ Confirmer la réservation", "👨‍💻 Parler à un conseiller"],
+      booked: "C'est confirmé ✅ Réservation enregistrée au nom de {name}. Un récapitulatif complet vous arrive sur WhatsApp dans quelques minutes. Merci et à bientôt ! 🚗",
+      handoff: "Bien sûr — un conseiller vous rappelle dans les 5 minutes au {phone}. Votre dossier vient d'être transmis à l'équipe 🔔",
+      prices: "Nos tarifs par jour :\n• Économique (Dacia Logan…) — 200 DH\n• Berline (Renault Symbol…) — 350 DH\n• SUV (Dacia Duster…) — 550 DH\n• Van (Renault Kangoo…) — 800 DH\n\nCaution remboursable, km illimité en ville.",
+      unclear: "Désolé, je n'ai pas bien compris. Pouvez-vous réécrire, s'il vous plaît ?",
+      phoneBad: "Ce numéro ne semble pas valide. Un numéro marocain ressemble à 0661 23 45 67 🙂",
+      nameBad: "Je n'ai pas saisi le nom. Pouvez-vous l'écrire ?",
+      needOk: "Bien noté 👍",
+      datesOk: "Dates notées 📅"
+    },
+    ar: {
+      welcome: "السلام عليكم 👋 مرحبا بكم فـ Atlas Cars كازابلانكا. كنوفرو السيارات بتوصيل مجاني لمطار محمد الخامس و للفنادق.",
+      askLang: "Choisissez votre langue / اختر اللغة :",
+      askNeed: "أشنو الخدمة اللي محتاج؟",
+      needChips: ["كراء فالمطار", "كراء داخل المدينة", "نقل من المطار", "كراء مدة طويلة"],
+      askName: "واخا. عافاك عطيني سميتك الكاملة؟",
+      askPhone: "شكراً {name} 👌 عافاك عطيني رقم الهاتف باش نأكدو الحجز.",
+      askDates: "فأيام خاصك السيارة؟ (مثلاً من 12 حتى 14 يونيو)",
+      askClass: "أشنو نوع السيارة اللي بغيتي؟",
+      classChips: ["اقتصادية — 200 درهم/نهار", "برلين — 350 درهم/نهار", "SUV — 550 درهم/نهار", "فان — 800 درهم/نهار"],
+      askBudget: "واش عندك ميزانية معينة فالنهار؟ (اختياري)",
+      budgetChips: ["تجاوز", "200–300 درهم", "300–500 درهم", "أكثر من 500"],
+      offer: "ممتاز {name} ✅\n\nالعرض ديال Atlas Cars :\n• {car} — {price} درهم فالنهار\n• الضمانة مؤمّن عليها\n• التوصيل مجاني للمطار ولا للفندق ديالك\n\nواش غادي تأكد الحجز، ولا بغيتي تهضر مع مستشار؟",
+      closeChips: ["✅ تأكيد الحجز", "👨‍💻 نتكلم مع مستشار"],
+      booked: "تم تأكيد الحجز ✅ تسجل فـسمية {name}. غادي يوصلك_confirmation فـالواتساب دابا. شكراً بزاف و لاباس 🚗",
+      handoff: "واخا — واحد من المستشارين ديالنا غادي يعيط ليك فأقل من 5 دقايق فـ {phone}. السيرفر ديالك وصل للفريق 🔔",
+      prices: "الأسعار فالنهار :\n• اقتصادية (Dacia Logan…) — 200 درهم\n• برلين (Renault Symbol…) — 350 درهم\n• SUV (Dacia Duster…) — 550 درهم\n• فان (Renault Kangoo…) — 800 درهم\n\nالضمانة ترد، والكيلومتراج غير محدود داخل المدينة.",
+      unclear: "سمحلي، ما فهمتش مزيان. عaffak كرر ليا ؟",
+      phoneBad: "هاد الرقم ما بانش صحيح. الرقم المغربي كيفوت هكذا: 0661 23 45 67 🙂",
+      nameBad: "ما قريتش السمية مزيان. عaffak كتبها ليا ؟",
+      needOk: "تسجل 👍",
+      datesOk: "الأيام تسجلات 📅"
+    },
+    en: {
+      welcome: "Hello 👋 Welcome to Atlas Cars Casablanca. Car rental with free delivery to Mohammed V airport and your hotel.",
+      askLang: "Choose your language / اختر اللغة :",
+      askNeed: "How can I help you?",
+      needChips: ["Airport rental", "City rental", "Airport transfer", "Long-term rental"],
+      askName: "Great. May I have your full name?",
+      askPhone: "Thank you {name} 👌 Your phone number (Moroccan format, e.g. 0661 23 45 67)?",
+      askDates: "Which rental dates? (e.g. June 12 to 14)",
+      askClass: "Which type of vehicle works for you?",
+      classChips: ["Economy — 200 MAD/day", "Sedan — 350 MAD/day", "SUV — 550 MAD/day", "Van — 800 MAD/day"],
+      askBudget: "An approximate daily budget? (optional)",
+      budgetChips: ["Skip", "200–300 MAD", "300–500 MAD", "over 500 MAD"],
+      offer: "Excellent choice {name} ✅\n\nAtlas Cars offer:\n• {car} — {price} MAD/day\n• Refundable deposit, insurance included\n• Free delivery to the airport or your hotel\n\nShall I confirm the booking, or would you rather speak to an advisor?",
+      closeChips: ["✅ Confirm the booking", "👨‍💻 Talk to an advisor"],
+      booked: "Confirmed ✅ Booking registered under {name}. A full summary is on its way to your WhatsApp. Thank you and see you soon! 🚗",
+      handoff: "Of course — an advisor will call you back within 5 minutes on {phone}. Your file has been sent to the team 🔔",
+      prices: "Our daily rates:\n• Economy (Dacia Logan…) — 200 MAD\n• Sedan (Renault Symbol…) — 350 MAD\n• SUV (Dacia Duster…) — 550 MAD\n• Van (Renault Kangoo…) — 800 MAD\n\nRefundable deposit, unlimited city mileage.",
+      unclear: "Sorry, I didn't quite understand. Could you rephrase?",
+      phoneBad: "That number doesn't look valid. A Moroccan number looks like 0661 23 45 67 🙂",
+      nameBad: "I couldn't read the name. Could you type it?",
+      needOk: "Noted 👍",
+      datesOk: "Dates noted 📅"
+    }
+  };
+  const LANG_LABEL = {fr:"Français", ar:"العربية", en:"English"};
+
+  /* ===================== state ===================== */
+  const S = { lang:"fr", stage:"greet", lead:null, busy:false, seenChat:false };
+  let currentNicheKey="car";
+  let leads = loadLeads();
+  let selectedId = null;
+
+  const $ = (id)=>document.getElementById(id);
+  const chatEl=$("chat"), repliesEl=$("replies"), waText=$("wa-text");
+  const listingsArea=$("listingsArea"), filterCategory=$("filterCategory"), filterCity=$("filterCity"), filterPrice=$("filterPrice");
+  const seoMeta=$("seoMeta"), seoJsonLd=$("seoJsonLd");
+
+  function loadLeads(){ try{ return JSON.parse(localStorage.getItem("atlas_leads_v2"))||[] }catch(e){ return [] } }
+  function saveLeads(){ try{ localStorage.setItem("atlas_leads_v2", JSON.stringify(leads)) }catch(e){} }
+
+  function t(key, vars){
+    const n=NICHES[currentNicheKey];
+    let s = (n.texts[S.lang]&&n.texts[S.lang][key]) || (COPY[S.lang]&&COPY[S.lang][key]) || COPY.fr[key] || key;
+    if(vars) for(const k in vars) s = String(s).split("{"+k+"}").join(vars[k]);
+    return s;
+  }
+  function niche(){ return NICHES[currentNicheKey] }
+  function catalogChips(){ return niche().catalog.map(c=>{ const lab=c[S.lang]||c.fr; return {label:lab+" — "+c.price, text:lab} }); }
+  function getItem(nicheKey, id){ const n=NICHES[nicheKey||"car"]; return n ? n.catalog.find(c=>c.id===id) : undefined; }
+  function itemForLead(l){ return getItem(l.niche||"car", l.item) }
+  function itemLabelForLead(l){ const it=itemForLead(l); if(!it) return (l&&l.item)||"–"; return it[l.language]||it.fr; }
+  function itemPriceForLead(l){ const it=itemForLead(l); return it?it.price:null }
+  function nowTime(){ const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0") }
+  function uid(){ return "L"+Date.now().toString(36)+Math.random().toString(36).slice(2,6) }
+
+  /* ===================== language detection ===================== */
+  const DARIJA_WORDS=["سلام","مرحبا","السلام","واش","شحال","بغيت","بغيتي","عندي","كاين","واخا","واخا","صافي","ديال","فين","علاش","شكون","حيت","دابا","غادي","بزاف","خويا","سيدي","عفاقة","سميتي","رقم","نهار","سيارة","كراء","توصيل","نقدر","الله يعطيك","موعد","عقار","شقة","تبييض","زيارة"];
+  const FR_RE=/\\b(bonjour|bonsoir|salut|svp|s'il vous plait|s'il vous plaît|je|j'|veux|voudrais|louer|location|voiture|prix|combien|merci|rendezvous|parler|conseiller|confirmer|reservation|réservation|passer|daccord|visite|acheter|studio|villa|soin|dentiste|clinique)\\b/i;
+  const EN_RE=/\\b(hello|hi|hey|rent|rental|car|price|how much|book|booking|thanks|talk|advisor|human|need|want|skip|confirm|airport|city|visit|property|apartment|clinic|appointment|treatment|whitening)\\b/i;
+
+  function detectLang(text){
+    if(/[\\u0600-\\u06FF]/.test(text)) return "ar";
+    const t=text.toLowerCase();
+    if(DARIJA_WORDS.some(w=>t.includes(w))) return "ar";
+    if(FR_RE.test(t)) return "fr";
+    if(EN_RE.test(t)) return "en";
+    return null;
+  }
+
+  /* ===================== extraction ===================== */
+  function extractPhone(text){
+    const m=text.match(/(?:\\+?212|0)[\\s.\\-]?[5-7](?:[\\s.\\-]?\\d{2}){4}/);
+    if(m) return m[0].replace(/[.\\-]/g," ").replace(/\\s+/g," ").trim();
+    const digits=text.replace(/[^\\d]/g,"");
+    if(digits.length>=9 && digits.length<=12 && /^[5-7]/.test(digits.replace(/^212/,"0").slice(-9))) {
+      const d=digits.replace(/^212/,"0").slice(-9);
+      return d.slice(0,5)+" "+d.slice(5);
+    }
+    return null;
+  }
+  function extractItem(text){
+    const t=text.toLowerCase();
+    for(const c of niche().catalog){
+      if(c.keywords.some(k=>t.includes(k.toLowerCase()))) return c.id;
+    }
+    return null;
+  }
+  function extractBudget(text){
+    const m=text.match(/(\\d{3,5})\\s*(?:dh|dirham|درهم|mad)/i);
+    if(m) return m[1]+" DH";
+    const range=text.match(/(\\d{3,4})\\s*[–\\-àa]\\s*(\\d{3,4})/);
+    if(range) return range[1]+"–"+range[2]+" DH";
+    const big=/(\\d{3,5})/.exec(text);
+    if(big && +big[1]>=150 && +big[1]<=5000) return big[1]+" DH";
+    return null;
+  }
+  function extractDates(text){
+    const range=/(\\d{1,2})\\s*(?:au|à|-|to|–)\\s*(\\d{1,2})(?:\\s+(\\w+))?/i.exec(text);
+    if(range){
+      const month=range[3]?(" "+range[3]):"";
+      return "du "+range[1]+" au "+range[2]+month;
+    }
+    const slash=/(\\d{1,2})[\\/.](\\d{1,2})/.exec(text);
+    if(slash) return "à partir du "+slash[1]+"/"+slash[2];
+    if(/demain|غدا|tomorrow/i.test(text)) return "demain";
+    if(/semaine prochaine|الأسبوع الجاي|next week/i.test(text)) return "semaine prochaine";
+    return text.trim().slice(0,60);
+  }
+  function cleanName(text){
+    let n=text.replace(/\\b(svp|s'il vous plaît|s'il vous plait|please|عفاقة| شكرا|merci|hi|hello|bonjour|je m'appelle|c'est|ana|سميتي)\\b/gi," ");
+    n=n.replace(/[?!.،,]/g," ").replace(/\\s+/g," ").trim();
+    if(!n || /\\d{3,}/.test(n) || n.length<2 || n.length>50) return null;
+    return n;
+  }
+
+  /* ===================== city/region utilities ===================== */
+  function getCityForNiche(key){
+    return niche().cityCatalog?.[cityKey] || {city:"Casablanca", ar:"كازابلانكا", lat:33.5731, lng:-7.5898, subregions:[]};
+  }
+  function getSubregionsForCity(cityKey){
+    const city = getCityForNiche(cityKey);
+    return city.subregions || [];
+  }
+  function getCityKeyFromUrl(){
+    const match = window.location.pathname.match(/\/([a-z]+)\/([^/]+)\/?$/);
+    return match ? match[2] : null;
+  }
+  function getNicheKeyFromUrl(){
+    const match = window.location.pathname.match(^/([a-z]+)/);
+    return match ? match[1] : null;
+  }
+
+  /* ===================== SEO: meta tags & json-ld ===================== */
+  function updateSEOMeta(title, description, keywords){
+    const metaTitle =$("metaTitle")||document.createElement("meta");
+    metaTitle.name="title";
+    metaTitle.content=title;
+    if(!$("metaTitle")) document.head.appendChild(metaTitle);
+    const metaDesc =document.querySelector('meta[name="description"]');
+    if(metaDesc){ metaDesc.content=description; }else{ const d=document.createElement("meta"); d.name="description"; d.content=description; document.head.appendChild(d); }
+    const metaKeywords =document.querySelector('meta[name="keywords"]');
+    if(metaKeywords){ metaKeywords.content=keywords; }else{ const k=document.createElement("meta"); k.name="keywords"; k.content=keywords; document.head.appendChild(k); }
+  }
+  function updateSEOJsonLd(nicheKey, cityKey, listings){
+    const niche = niche();
+    const city = niche.cityCatalog?.find(c=>c.city===cityKey) || niche.cityCatalog[0];
+    const items = (niche.catalog||[]).slice(0, 5).map(c=>({
+      "@type": "ItemPage",
+      "name": c[niche.lang] || c.fr,
+      "price": c.price,
+      "keywords": c.keywords,
+      "item": c.id
+    }));
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": niche.name,
+      "url": window.location.origin + window.location.pathname,
+      "logo": "https://example.com/logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": city.ar || city.fr || city.en || "Casablanca",
+        "addressCountry": "MA"
+      },
+      "itemListElement": items.map((item,i)=>({
+        "@type": "ListItem",
+        "position": i+1,
+        "item": {"name": item.name, "price": item.price, "@id": window.location.origin + window.location.pathname + "?item=" + item.id}
+      ))}
+    };
+    const s = document.createElement("script");
+    s.type="application/ld+json"; s.text = JSON.stringify(ld);
+    if(seoJsonLd.firstChild) seoJsonLd.replaceWith(s); else seoJsonLd.appendChild(s);
+  }
+
+  /* ===================== routing ===================== */
+  function handleRouteChange(){
+    const nicheKey = getNicheKeyFromUrl();
+    const cityKey = getCityKeyFromUrl();
+    
+    if(nicheKey && NICHES[nicheKey]){
+      currentNicheKey = nicheKey;
+      S.lang = NICHES[nicheKey].texts["en"] ? "en" : "fr"; // default
+      
+      // Update UI
+      nicheSelect.value = nicheKey;
+      updateNicheUI(nicheKey);
+      
+      if(cityKey){
+        // City-specific page
+        renderCityPage(nicheKey, cityKey);
+        updateSEOMeta(
+          niche.name + " - " + (cityKey === "Casablanca" ? "Casablanca" : cityKey),
+          t("welcome") + " - " + cityKey,
+          "directory, " + niche.name.toLowerCase() + ", " + cityKey
+        );
+        updateSEOJsonLd(nicheKey, cityKey);
+      } else {
+        // General niche page
+        renderNichePage(nicheKey);
+        updateSEOMeta(niche.name, t("welcome"), "directory, " + niche.name.toLowerCase());
+        seoJsonLd.innerHTML = "";
+      }
+    } else {
+      // Default home page
+      currentNicheKey = "car";
+      nicheSelect.value = "car";
+      renderHomePage();
+      updateSEOMeta("Atlas Directory", t("welcome"), "directory, real estate, medical");
+      updateSEOJsonLd();
+    }
+    
+    renderLeads();
+  }
+  function renderHomePage(){
+    listingsArea.innerHTML = `
+      <div class="page">
+        <div class="page-header">
+          <h1 class="page-title">${t("welcome")}</h1>
+          <p class="page-breadcrumb">Secteur : <span id="homeNiche">${niche().name}</span></p>
+        </div>
+        <div class="layout">
+          ${catalogChips().map(c=>`<div class="listing-card" data-item="${c.text}"><div class="listing-header"><div class="listing-avatar">🚗</div><div class="listing-info"><h3>${c.label}</h3><p>${c.text}</p></div></div><div class="listing-price">${c.price}</div><div class="listing-actions"><button class="listing-action-btn primary">Sélectionner</button></div></div>`).join("")}
+        </div>
+      </div>
+    `;
+  }
+  function renderNichePage(nicheKey){
+    const n = NICHES[nicheKey];
+    const cities = n.cityCatalog || [];
+    listingsArea.innerHTML = `
+      <div class="page">
+        <div class="page-header">
+          <h1 class="page-title">${n.name}</h1>
+          <p class="page-breadcrumb">Choisissez une ville</p>
+        </div>
+        <div class="layout">
+          ${cities.map(c=>`
+            <div class="listing-card" data-city="${c.city}" style="cursor:pointer;user-select:none">
+              <div class="listing-header"><div class="listing-avatar">🏢</div><div class="listing-info"><h3>${c.city} ${c.ar ? "("+c.ar+")" : ""}</h3></div></div>
+              <div class="listing-price" style="font-size:14px;color:var(--muted)">${c.city}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+    // Add city click handlers
+    document.querySelectorAll('.listing-card[data-city]').forEach(el=>{
+      el.addEventListener('click',()=>{ window.location=`/${nicheKey}/${el.dataset.city}` });
+    });
+  }
+  function renderCityPage(nicheKey, cityKey){
+    const n = NICHES[nicheKey];
+    const city = n.cityCatalog?.find(c=>c.city===cityKey) || {city:cityKey, subregions:[]};
+    const subregions = city.subregions || [];
+    const catalogItems = niche().catalog;
+    
+    // Build filter options
+    const categoryFilters = catalogItems.map(c=>`<label class="filter-chip${c===niche().catalog[0]?' selected':''}" data-category="${c.id}">${c[S.lang]||c.fr}</label>`).join("");
+    const priceRanges = ["200–300 DH","300–500 DH","500–800 DH","800+ DH"].map(p=>`<label class="filter-chip tag" data-price="${p}">${p}</label>`).join("");
+    
+    listingsArea.innerHTML = `
+      <div class="page">
+        <div class="page-header">
+          <h1 class="page-title">${n.name} — ${city.city}</h1>
+          <p class="page-breadcrumb">Sélectionnez une catégorie</p>
+        </div>
+        <div class="layout">
+          <div class="filter-sidebar">
+            <div class="filter-section">
+              <h4>Catégorie</h4>
+              <div id="categoryFilters" role="group">${categoryFilters}</div>
+            </div>
+            <div class="filter-section">
+              <h4>Prix</h4>
+              <div id="priceFilters" role="group">${priceRanges}</div>
+            </div>
+            <div class="filter-section">
+              <h4>Sous-zone</h4>
+              <div id="subregionFilters" role="group"></div>
+            </div>
+          </div>
+          <section id="listingsSection" class="stage" style="min-height:auto;">
+            ${subregions.map(s=>`<div class="subregion-badge">${s}</div>`).join('')}
+            <div class="empty">${t("unavailable")||"Aucune annonce disponible"}</div>
+          </section>
+        </div>
+      </div>
+    `;
+    
+    // Add category filter handlers
+    document.querySelectorAll('.filter-chip[data-category]').forEach(el=>{
+      el.addEventListener('click',()=>{
+        document.querySelectorAll('.filter-chip.selected').forEach(e=>e.classList.remove('selected'));
+        el.classList.add('selected');
+        renderListings(nicheKey, cityKey, el.dataset.category);
+      });
+    });
+    
+    // Initial render with all items
+    renderListings(nicheKey, cityKey);
+  }
+  function renderListings(nicheKey, cityKey, selectedCategory){
+    const n = NICHES[nicheKey];
+    const city = n.cityCatalog?.find(c=>c.city===cityKey) || {city:cityKey, subregions:[]};
+    const catalog = niche().catalog;
+    const filtered = selectedCategory ? catalog.filter(c=>c.id===selectedCategory) : catalog;
+    
+    const listingsHTML = filtered.map(c=>{
+      const price = c.price;
+      const keywords = c.keywords.join(", ");
+      return `
+        <div class="listing-card" data-item="${c.id}" style="cursor:pointer;user-select:none">
+          <div class="listing-header"><div class="listing-avatar">🚗</div><div class="listing-info"><h3>${c[n.lang]||c.fr}</h3><p>${city.city}: ${price}</p></div></div>
+          <div class="listing-price">${price}</div>
+          <div class="listing-meta"><div>📍 ${city.city}</div><div>⏰ ${nowTime()}</div></div>
+          <div class="listing-actions"><button class="listing-action-btn primary">Détails</button></div>
+        </div>`;
+    }).join("");
+    
+    document.getElementById('listingsSection').innerHTML = listingsHTML || `<div class="empty">${t("unavailable")||"Aucune annonce disponible"}</div>`;
+    
+    // Add click handlers for each listing
+    document.querySelectorAll('.listing-card').forEach(el=>{
+      el.addEventListener('click',()=>{ 
+        selectedId = el.dataset.item;
+        showDetailForItem(nicheKey, cityKey, selectedId); 
+      });
+    });
+  }
+  function showDetailForItem(nicheKey, cityKey, itemId){
+    const n = NICHES[nicheKey];
+    const item = n.catalog.find(c=>c.id===itemId);
+    if(!item) return;
+    
+    // Create lead
+    const lead = newLead();
+    lead.name = ""; lead.phone = ""; lead.language = S.lang;
+    lead.need = itemLabelForLead(lead); lead.item = item.id; lead.dates = ""; lead.budget = "";
+    lead.niche = nicheKey;
+    promoteLead("warm");
+    S.lead = lead;
+    persistLead();
+    
+    // Show detail panel
+    const detailEl = $("#detail");
+    detailEl.innerHTML = `
+      <div class="detail">
+        <div class="detail-head"><h3>${item[n.lang]||item.fr}</h3><button class="close-x" aria-label="Fermer">&times;</button></div>
+        <div class="fields">
+          <dt>Prix</dt><dd>${item.price}</dd>
+          <dt>Ville</dt><dd>${city.city}</dd>
+          <dt>Type</dt><dd>${itemLabelForLead(lead)}</dt>
+        </div>
+        <div class="notif">${t("offer", {name:"", car:item[n.lang]||item.fr, price:item.price})}</div>
+        <div class="detail-actions" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap">
+          <button class="listing-action-btn primary">Confirmer la réservation</button>
+          <button class="listing-action-btn secondary">Parler à un conseiller</button>
+        </div>
+      </div>`;
+    $("#detail-panel").hidden = false;
+  }
+
+  /* ===================== lead management ===================== */
+  function newLead(){
+    return {id:uid(), name:"", phone:"", language:S.lang, need:"", item:"", dates:"", budget: "",
+      niche:currentNicheKey, status:"cold", createdAt:Date.now(), notified:false, transcript:[]};
+  }
+  function promoteLead(status){
+    if(!S.lead) return;
+    const order={cold:0,warm:1,hot:2,booked:3};
+    if(status==="booked" || order[status]>order[S.lead.status]) S.lead.status=status;
+  }
+  function persistLead(){
+    if(!S.lead || !S.lead.phone) return;
+    S.lead.updatedAt=Date.now();
+    const i=leads.findIndex(l=>l.id===S.lead.id);
+    if(i>=0) leads[i]=JSON.parse(JSON.stringify(S.lead));
+    else leads.unshift(JSON.parse(JSON.stringify(S.lead)));
+    saveLeads(); renderLeads();
+    if(S.lead.status==="booked") showToast("Réservation confirmée ✅");
+  }
+  function renderLeads(){
+    const leadsEl =$("leads");
+    if(leads.length===0){ leadsEl.innerHTML=`<div class="empty">${t("empty")||"Aucune lead"}</div>`; return; }
+    leadsEl.innerHTML = leads.map(l=>`
+      <div class="lead-row ${l.status==="hot"?"sel":"}" data-status="${l.status}" data-id="${l.id}">
+        <div class="lead-dot ${l.status}" title="${l.status}"></div>
+        <div class="lead-main">
+          <b>${l.name||"Anonyme"}</b><br>
+          <small>${l.phone||"Pas de téléphone"}</small>
+        </div>
+        <span class="lead-time">${new Date(l.createdAt).toLocaleDateString()}</span>
+        ${l.status==="booked" ? `<span class="flag booked">${t("bookedLabel")||"confirmées"}</span>` : ""}
+      </div>`).join("");
+  }
+  function showToast(msg){
+    const wrap =$("toast-wrap");
+    const t = document.createElement("div");
+    t.className="toast"; t.innerHTML=`<b>${msg}</b><span>${new Date().toLocaleTimeString()}</span>`;
+    wrap.appendChild(t);
+    setTimeout(()=>{ if(t.parentNode) t.parentNode.removeChild(t) }, 5000);
+  }
+
+  /* ===================== event handlers ===================== */
+  function handleUser(text){
+    const detected = detectLang(text);
+    if(detected){ S.lang = detected; updateLangUI(); }
+    
+    const lead = S.lead || newLead();
+    lead.name = cleanName(text) || lead.name;
+    lead.phone = extractPhone(text) || lead.phone;
+    lead.need = extractItem(text) || lead.need;
+    lead.dates = extractDates(text) || lead.dates;
+    lead.budget = extractBudget(text) || lead.budget;
+    
+    // Determine item from extracted keywords
+    if(!lead.item) {
+      lead.item = extractItem(text) || (lead.need ? Object.keys(NICHES[currentNicheKey].catalog).find(k=>NICHES[currentNicheKey].catalog[k].keywords.some(kw=>text.toLowerCase().includes(kw))) : null);
+    }
+    
+    // Determine budget
+    if(!lead.budget) lead.budget = extractBudget(text) || "";
+    
+    // Promote status based on lead state
+    if(lead.phone && lead.name) promoteLead("warm");
+    if(lead.item) promoteLead("hot");
+    
+    S.lead = lead;
+    persistLead();
+    renderLeads();
+    
+    // Chat handling
+    pushMsg("user", text);
+    botSay(t("offer", {name:lead.name||"", car:itemLabelForLead(lead), price:itemPriceForLead(lead)}), catalogChips(), 600);
+  }
+  
+  function pushMsg(who, text){
+    const div=document.createElement("div");
+    div.className="msg "+(who==="user"?"user":"bot");
+    const body=document.createElement("div");
+    body.style.whiteSpace="pre-wrap";
+    body.textContent=text;
+    div.appendChild(body);
+    const time=document.createElement("span");
+    time.className="time";
+    time.innerHTML = nowTime() + (who==="user"?' <span class="tick">✓✓</span>':"");
+    div.appendChild(time);
+    chatEl.appendChild(div);
+    scrollDown();
+    if(S.lead) S.lead.transcript.push({who, text, at:Date.now()});
+  }
+  
+  function scrollDown(){ chatEl.scrollTop = chatEl.scrollHeight }
+  
+  function showTyping(){
+    if(typingEl) return;
+    typingEl=document.createElement("div");
+    typingEl.className="typing";
+    typingEl.innerHTML="<i></i><i></i><i></i>";
+    typingEl.setAttribute("aria-label","le bot écrit");
+    chatEl.appendChild(typingEl); scrollDown();
+  }
+  function hideTyping(){ if(typingEl){ typingEl.remove(); typingEl=null } }
+  
+  function setChips(chips){
+    repliesEl.innerHTML="";
+    (chips||[]).forEach(c=>{
+      const b=document.createElement("button");
+      b.type="button"; b.textContent=c.label!==undefined?c.label:c;
+      b.addEventListener("click",()=>handleUser(c.text!==undefined?c.text:c));
+      repliesEl.appendChild(b);
+    });
+    scrollDown();
+  }
+  
+  function botSay(text, chips, delay){
+    S.busy=true;
+    const d = delay!==undefined?delay:(600+Math.random()*700);
+    showTyping();
+    setTimeout(()=>{
+      hideTyping();
+      pushMsg("bot", text);
+      setChips(chips);
+      S.busy=false;
+    }, d);
+  }
+  
+  function updateLangUI(){
+    const langLabels =$("langLabels")||document.createElement("div");
+    langLabels.innerHTML = Object.keys(LANG_LABEL).map(l=>`<span>${LANG_LABEL[l]}</span>`).join(" ");
+    if(!$("#langLabels")) document.body.appendChild(langLabels);
+  }
+  
+  function updateNicheUI(nicheKey){
+    const n = NICHES[nicheKey];
+    $( "brandTitle" ).textContent = n.name;
+    $( "brandTagline" ).textContent = n.tagline;
+  }
+
+  /* ===================== init ===================== */
+  // Initialize niche filters
+  function initNicheFilters(){
+    const n = NICHES["car"];
+    const categoryHTML = n.catalog.map(c=>`<label class="filter-chip${c===n.catalog[0]?' selected':''}" data-category="${c.id}">${c[S.lang]||c.fr}</label>`).join("");
+    filterCategory.innerHTML = categoryHTML;
+    
+    const cityHTML = n.cityCatalog.map(c=>`<div class="filter-chip tag" data-city="${c.city}">${c.city} ${c.ar?c.ar:""}</div>`).join("");
+    filterCity.innerHTML = cityHTML;
+    
+    // Add filter handlers
+    document.querySelectorAll('.filter-chip[data-category]').forEach(el=>{
+      el.addEventListener('click',()=>{
+        document.querySelectorAll('.filter-chip.selected').forEach(e=>e.classList.remove('selected'));
+        el.classList.add('selected');
+        renderListings("car", "Casablanca", el.dataset.category);
+      });
+    });
+    
+    document.querySelectorAll('.filter-chip[data-city]').forEach(el=>{
+      el.addEventListener('click',()=>{
+        window.location=`/car/${el.dataset.city}`;
+      });
+    });
+  }
+  
+  // Initialize language detection on load
+  (function(){
+    const welcomeText = t("welcome");
+    const detected = detectLang(welcomeText);
+    if(detected) S.lang = detected;
+  })();
+  
+  // Route change handling
+  window.addEventListener("popstate", handleRouteChange);
+  // Initialize with hash routing or default
+  handleRouteChange();
+  
+  // Niche selector change
+  nicheSelect.addEventListener("change",(e)=>{
+    currentNicheKey = e.target.value;
+    window.location = `/${e.target.value}`;
+  });
+  
+  // Reset button
+  btnReset.addEventListener("click",()=>{
+    localStorage.removeItem("atlas_leads_v2");
+    leads = [];
+    renderLeads();
+    showToast("Données réinitialisées");
+  });
+  
+  // Auto-demo button
+  btnAuto.addEventListener("click",()=>{
+    // Cycle through seeds
+    const seeds = NICHES[currentNicheKey].seeds;
+    if(seeds.length>0){
+      const seed = seeds[Math.floor(Math.random()*seeds.length)];
+      waText.value = seed.opener || seed.name || "";
+      document.getElementById("wa-form").dispatchEvent(new Event("submit"));
+    }
+  });
+  
+  // Form submit
+  $("wa-form").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const text = waText.value.trim();
+    if(!text) return;
+    handleUser(text);
+    waText.value = "";
+  });
+  
+  // Clear leads
+  btnClear.addEventListener("click",()=>{
+    localStorage.removeItem("atlas_leads_v2");
+    leads = [];
+    renderLeads();
+    showToast("Leads vidés");
+  });
+  
+  // Initialize
+  initNicheFilters();
+})();
+</script>
+</body>
+</html>

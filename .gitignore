@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output (Cloudflare Pages uses this; do not commit)
+dist/
+
+# Astro tool cache and generated types
+.astro/
+
+# Lockfile is fine to keep for reproducible installs, but some teams prefer to ignore it.
+# Uncomment if you do not want to track it:
+# package-lock.json
+
+# Local Site/Worker scaffolding used for this project only (not part of the Astro app)
+site/
